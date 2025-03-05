@@ -1,4 +1,3 @@
-
 -- Create Sellers Table
 CREATE TABLE IF NOT EXISTS sellers (
     id SERIAL PRIMARY KEY,
@@ -10,15 +9,13 @@ CREATE TABLE IF NOT EXISTS sellers (
 
 -- Create Houses Table
 CREATE TABLE IF NOT EXISTS houses (
-    id SERIAL PRIMARY KEY,
-    zpid VARCHAR(20) UNIQUE,
-    price VARCHAR(50),
-    unformatted_price INT,
-    status VARCHAR(50),
-    lot_area VARCHAR(50),
-    home_type VARCHAR(50),
-    latitude DECIMAL(10, 6),
-    longitude DECIMAL(10, 6),
+    zpid VARCHAR(20) PRIMARY KEY,
+    price INT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    area VARCHAR(50),
+    home_type VARCHAR(50) NOT NULL,
+    latitude DECIMAL(10, 6) NOT NULL,
+    longitude DECIMAL(10, 6) NOT NULL,
     listing_agent VARCHAR(255),
     detail_url TEXT,
     broker_name VARCHAR(255),
@@ -28,16 +25,16 @@ CREATE TABLE IF NOT EXISTS houses (
 -- Create Addresses Table
 CREATE TABLE IF NOT EXISTS addresses (
     id SERIAL PRIMARY KEY,
-    house_id INT REFERENCES houses(id) ON DELETE CASCADE,
-    street VARCHAR(255),
-    city VARCHAR(100),
-    state VARCHAR(50),
-    zipcode VARCHAR(20)
+    house_zpid VARCHAR(20) UNIQUE REFERENCES houses(zpid) ON DELETE CASCADE,
+    street VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    zipcode VARCHAR(20) NOT NULL
 );
 
 -- Create House Images Table
 CREATE TABLE IF NOT EXISTS house_images (
     id SERIAL PRIMARY KEY,
-    house_id INT REFERENCES houses(id) ON DELETE CASCADE,
-    image_url TEXT
+    house_zpid VARCHAR(20) REFERENCES houses(zpid) ON DELETE CASCADE,
+    image_url TEXT NOT NULL
 );
