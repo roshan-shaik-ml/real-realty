@@ -1,11 +1,13 @@
+import os
+import logging
+from decimal import Decimal
+from dotenv import load_dotenv
+
+from utils.logger import setup_logger
+from typing import List, Dict, Any, Optional, Union
+
 import psycopg2
 from psycopg2.extras import RealDictCursor, execute_values
-from typing import List, Dict, Any, Optional, Union
-import logging
-from dotenv import load_dotenv
-import os
-from decimal import Decimal
-from utils.logger import setup_logger
 
 load_dotenv()
 

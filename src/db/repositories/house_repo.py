@@ -1,11 +1,13 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor, execute_values
-from typing import List, Dict, Any, Optional, Union
-import logging
-from dotenv import load_dotenv
 import os
 import uuid
+import logging
+
+import psycopg2
+from psycopg2.extras import RealDictCursor, execute_values
+
+from dotenv import load_dotenv
 from utils.logger import setup_logger
+from typing import List, Dict, Any, Optional, Union
 
 load_dotenv()
 

@@ -1,15 +1,19 @@
-import requests
-import time
-from typing import List, Dict, Any, Optional
-import logging
 import os
 import json
+import time
+import requests
+from typing import List, Dict, Any, Optional
+
 from utils.parser import Parser
+from utils.logger import setup_logger
+
+
+
 from db.repositories.house_repo import HouseRepository
 from db.repositories.broker_repo import BrokerRepository
 from db.repositories.address_repo import AddressRepository
 from db.repositories.images_repo import ImagesRepository
-from utils.logger import setup_logger
+
 
 # Setup logger
 logger = setup_logger()
@@ -39,6 +43,26 @@ class ZillowScraper:
         self.broker_data = []
         logger.info("ZillowScraper initialized")
 
+    def scrape(self, max_pages: int = 20):
+        logger.info(f"Starting scraping process for {max_pages} pages")
+
+        for page in range(1, max_pages + 1):
+            
+            logger.info(f"Scraping page {page}")
+            houses_data = self.fetch_page(page)
+            if not houses_data:
+                logger.warning(f"No data found on page {page}, stopping...")
+                break
+
+            self.process_broker_data(houses_data)
+            self.process_houses_data(houses_data)
+
+            # insert data
+            parser.reset_data(self.broker_data)
+
+            # Rate limiting
+            time.sleep(2)  # Being nice to Zillow's servers
+
     def get_query_body(self, page: int) -> Dict[str, Any]:
         with open(self.payload_path, "r") as f:
             payload = json.load(f)
@@ -60,9 +84,6 @@ class ZillowScraper:
             )
             logger.info(f"Fetched {len(houses)} houses from page {page}")
 
-            # Save the response to a file
-            with open(f"response_{page}.json", "w") as f:
-                json.dump(data, f)
             return houses
         except Exception as e:
             logger.error(f"Error fetching page {page}: {str(e)}", exc_info=True)
@@ -154,28 +175,8 @@ class ZillowScraper:
                 logger.error(f"Error processing house data: {str(e)}", exc_info=True)
                 continue
 
-    def scrape(self, max_pages: int = 20):
-        logger.info(f"Starting scraping process for {max_pages} pages")
-
-        for page in range(1, max_pages + 1):
-            logger.info(f"Scraping page {page}")
-
-            houses_data = self.fetch_page(page)
-            if not houses_data:
-                logger.warning(f"No data found on page {page}, stopping...")
-                break
-
-            self.process_broker_data(houses_data)
-            self.process_houses_data(houses_data)
-
-            # insert data
-            parser.reset_data(self.broker_data)
-
-            # Rate limiting
-            time.sleep(2)  # Being nice to Zillow's servers
-
-
-def main():
+if __name__ == "__main__":
+    
     scraper = ZillowScraper()
     try:
         logger.info("Starting Zillow scraper")
@@ -184,7 +185,3 @@ def main():
         logger.error(f"Fatal error in main: {str(e)}", exc_info=True)
     finally:
         logger.info("Zillow scraper closed")
-
-
-if __name__ == "__main__":
-    main()
