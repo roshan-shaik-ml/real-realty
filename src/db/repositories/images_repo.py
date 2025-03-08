@@ -13,6 +13,7 @@ logger = setup_logger()
 
 default_dsn = os.getenv("postgresql_dsn")
 
+
 class ImagesRepository:
     def __init__(self, dsn: str = default_dsn):
         """Initialize database connection with a DSN (Data Source Name)."""
@@ -53,8 +54,9 @@ class ImagesRepository:
             with psycopg2.connect(self.dsn) as conn:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     # Generate UUIDs and create values tuples
-                    values = [(str(id), str(house_id), url) 
-                            for id, house_id, url in images]
+                    values = [
+                        (str(id), str(house_id), url) for id, house_id, url in images
+                    ]
                     execute_values(cur, query, values)
                     conn.commit()
                     logger.info(f"Inserted {len(values)} images")
@@ -92,7 +94,7 @@ class ImagesRepository:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(query, (house_id,))
                     conn.commit()
-                    return [row['id'] for row in cur.fetchall()]
+                    return [row["id"] for row in cur.fetchall()]
         except Exception as e:
             logger.error(f"Error deleting images for house {house_id}: {str(e)}")
             raise

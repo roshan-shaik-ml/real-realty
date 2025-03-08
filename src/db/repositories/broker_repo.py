@@ -14,6 +14,7 @@ logger = setup_logger()
 
 default_dsn = os.getenv("postgresql_dsn")
 
+
 class BrokerRepository:
     def __init__(self, dsn: str = default_dsn):
         """Initialize database connection with a DSN (Data Source Name)."""
@@ -58,7 +59,9 @@ class BrokerRepository:
             with psycopg2.connect(self.dsn) as conn:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     # Convert list of dicts to list of tuples (id, name)
-                    values = [(update['id'], update['name']) for update in broker_updates]
+                    values = [
+                        (update["id"], update["name"]) for update in broker_updates
+                    ]
                     execute_values(cur, query, values)
                     conn.commit()
                     logger.info(f"brokers have been successfully updated")
@@ -112,10 +115,10 @@ class BrokerRepository:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(query, (broker_ids,))
                     conn.commit()
-                    return [row['id'] for row in cur.fetchall()]
+                    return [row["id"] for row in cur.fetchall()]
         except Exception as e:
             logger.error(f"Error bulk deleting brokers: {str(e)}")
-            raise 
+            raise
 
     def create(self, broker_name: str) -> Optional[Dict[str, Any]]:
         """Create a new broker with an auto-generated UUID."""
@@ -232,10 +235,10 @@ class BrokerRepository:
                     """
                     cur.execute(get_query, (broker_name,))
                     broker = cur.fetchone()
-                    
+
                     if broker:
                         return broker
-                    
+
                     # If not found, create new broker
                     create_query = """
                         INSERT INTO broker (id, name)
@@ -247,10 +250,14 @@ class BrokerRepository:
                     conn.commit()
                     return cur.fetchone()
         except Exception as e:
-            logger.error(f"Error in get_or_create for broker name {broker_name}: {str(e)}")
+            logger.error(
+                f"Error in get_or_create for broker name {broker_name}: {str(e)}"
+            )
             raise
 
-    def search_by_name(self, name_pattern: str, limit: int = 100) -> List[Dict[str, Any]]:
+    def search_by_name(
+        self, name_pattern: str, limit: int = 100
+    ) -> List[Dict[str, Any]]:
         """Search brokers by name pattern."""
         query = """
             SELECT id, name
@@ -265,5 +272,7 @@ class BrokerRepository:
                     cur.execute(query, (f"%{name_pattern}%", limit))
                     return cur.fetchall()
         except Exception as e:
-            logger.error(f"Error searching brokers by name pattern {name_pattern}: {str(e)}")
+            logger.error(
+                f"Error searching brokers by name pattern {name_pattern}: {str(e)}"
+            )
             raise
