@@ -8,7 +8,6 @@ from utils.parser import Parser
 from utils.logger import setup_logger
 
 
-
 from db.repositories.house_repo import HouseRepository
 from db.repositories.broker_repo import BrokerRepository
 from db.repositories.address_repo import AddressRepository
@@ -47,7 +46,7 @@ class ZillowScraper:
         logger.info(f"Starting scraping process for {max_pages} pages")
 
         for page in range(1, max_pages + 1):
-            
+
             logger.info(f"Scraping page {page}")
             houses_data = self.fetch_page(page)
             if not houses_data:
@@ -175,8 +174,9 @@ class ZillowScraper:
                 logger.error(f"Error processing house data: {str(e)}", exc_info=True)
                 continue
 
+
 if __name__ == "__main__":
-    
+
     scraper = ZillowScraper()
     try:
         logger.info("Starting Zillow scraper")
